@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // O puedes usar "ES2015"
+    "module": "commonjs",
+    "jsx": "react",
+    "lib": ["ES2015", "DOM"], // Asegúrate de incluir ES2015
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
