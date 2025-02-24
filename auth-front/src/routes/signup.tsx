@@ -71,23 +71,47 @@ export default function Signup() {
 
   return (
     <DefaultLayout>
-      <form onSubmit={handleSubmit} className="signup-form">
-        <h1>Signup</h1>
-        {!!errorResponse && <div className="error-message">{errorResponse}</div>}
-        <label>NIT</label>
-        <input type="text" name="nit" onChange={(e) => setNit(e.target.value)} value={nit} />
-        <label>Nombre de la Empresa</label>
-        <input type="text" name="nombre_empresa" onChange={(e) => setNombreEmpresa(e.target.value)} value={nombre_empresa} />
-        <label>Correo de la Empresa</label>
-        <input type="email" name="correo_empresa" onChange={(e) => setCorreoEmpresa(e.target.value)} value={correo_empresa} />
-        <label>Nombre de Contacto</label>
-        <input type="text" name="nombre_contacto" onChange={(e) => setNombreContacto(e.target.value)} value={nombre_contacto} />
-        <label>Celular de Contacto</label>
-        <input type="text" name="celular_contacto" onChange={(e) => setCelularContacto(e.target.value)} value={celular_contacto} />
-        <label>Password</label>
-        <input type="password" name="password" onChange={(e) => setPassword(e.target.value)} value={password} />
-        <button type="submit">Create account</button>
-      </form>
+      <form onSubmit={handleSubmit} className="signup-form mb-3">
+  <h1>Signup</h1>
+  {!!errorResponse && <div className="alert alert-danger">{errorResponse}</div>}
+
+  <div className="row mb-3">
+    <div className="col">
+      <label className="form-label">NIT</label>
+      <input type="text" className="form-control" name="nit" placeholder="Ingrese su NIT" onChange={(e) => setNit(e.target.value)} value={nit} />
+    </div>
+    <div className="col">
+      <label className="form-label">Nombre de la Empresa</label>
+      <input type="text" className="form-control" name="nombre_empresa" placeholder="Nombre de la empresa" onChange={(e) => setNombreEmpresa(e.target.value)} value={nombre_empresa} />
+    </div>
+  </div>
+
+  <div className="row mb-3">
+    <div className="col">
+      <label className="form-label">Correo de la Empresa</label>
+      <input type="email" className="form-control" name="correo_empresa" placeholder="Correo empresarial" onChange={(e) => setCorreoEmpresa(e.target.value)} value={correo_empresa} />
+    </div>
+    <div className="col">
+      <label className="form-label">Nombre de Contacto</label>
+      <input type="text" className="form-control" name="nombre_contacto" placeholder="Nombre del contacto" onChange={(e) => setNombreContacto(e.target.value)} value={nombre_contacto} />
+    </div>
+  </div>
+
+  <div className="row mb-3">
+    <div className="col">
+      <label className="form-label">Celular de Contacto</label>
+      <input type="text" className="form-control" name="celular_contacto" placeholder="Número de contacto" onChange={(e) => setCelularContacto(e.target.value)} value={celular_contacto} />
+    </div>
+    <div className="col">
+      <label className="form-label">Password</label>
+      <input type="password" className="form-control" name="password" placeholder="Contraseña" onChange={(e) => setPassword(e.target.value)} value={password} />
+    </div>
+  </div>
+
+  <button type="submit" className="btn btn-primary w-100">Create account</button>
+</form>
+
+
     </DefaultLayout>
   );
 }

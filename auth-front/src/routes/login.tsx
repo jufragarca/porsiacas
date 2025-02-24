@@ -94,29 +94,51 @@ export default function Login() {
       <div>
         <h1>Login</h1>
         {!!errorResponse && <div className="errorMessage">{errorResponse}</div>} {/* Muestra el mensaje de error si existe */}
+        <form onSubmit={handleSubmit} className="signup-form mb-3">
+ 
 
-        <form onSubmit={handleSubmit}>
-          {/* Formulario para ingresar NIT, correo y contraseña */}
-          <label>NIT</label>
-          <input type="text" value={nit} onChange={(e) => setNit(e.target.value)} />
+  {/* Mostrar errores si existen */}
+  {!!errorResponse && <div className="alert alert-danger">{errorResponse}</div>}
 
-          <label>Correo de la Empresa</label>
-          <input
-            type="email"
-            value={correoEmpresa} // Asegúrate de usar correoEmpresa aquí
-            onChange={(e) => setCorreoEmpresa(e.target.value)}
-          />
+  {/* NIT */}
+  <div className="mb-3">
+    <label className="form-label">NIT</label>
+    <input 
+      type="text" 
+      className="form-control"
+      value={nit} 
+      onChange={(e) => setNit(e.target.value)} 
+    />
+  </div>
 
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+  {/* Correo de la Empresa */}
+  <div className="mb-3">
+    <label className="form-label">Correo de la Empresa</label>
+    <input
+      type="email"
+      className="form-control"
+      value={correoEmpresa} 
+      onChange={(e) => setCorreoEmpresa(e.target.value)} 
+    />
+  </div>
 
-          <button type="submit">Iniciar sesión</button>
-        </form>
+  {/* Contraseña */}
+  <div className="mb-3">
+    <label className="form-label">Password</label>
+    <input
+      type="password"
+      className="form-control"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+    />
+  </div>
+
+  {/* Botón de Enviar */}
+  <button type="submit" className="btn btn-primary">Iniciar sesión</button>
+</form>
+
       </div>
+      
     </DefaultLayout> 
   );
 }
