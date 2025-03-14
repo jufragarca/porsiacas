@@ -1,58 +1,35 @@
-import React from "react"; // Importa React
-import ReactDOM from "react-dom/client"; // Importa ReactDOM para renderizar la aplicación
-import { createBrowserRouter, RouterProvider } from "react-router-dom"; // Importa Router para manejar las rutas
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// Importación de proveedores
-import { AuthProvider } from "./auth/AuthProvider"; // Proveedor general de autenticación
-import { CargoProvider } from "./contextos/CargoContext"; // Proveedor para el contexto de cargos
-import { AuthProviderUsuarios } from "./auth/AuthProviderUsuario"; // Proveedor específico para usuarios
+// 📌 Importación de proveedores de autenticación
+import { AuthProvider } from "./auth/AuthProvider"; // Contexto para otro tipo de autenticación (usuarios genéricos)
+import { AuthProviderUsuario } from "./auth/AuthProviderUsuario"; // Contexto de autenticación para empleados
 
-// Importación de los componentes de ruta
-import Login from "./routes/login"; // Componente de inicio de sesión
-import Signup from "./routes/signup"; // Componente de registro
-import LoginUsuario from "./routes/LoginUsuario"; // Componente de inicio de sesión de usuario
-import Dashboard from "./routes/dashboard"; // Componente del Dashboard
-import DashboardUsuarios from "./routes/dashboardUsuarios"; // Componente del Dashboard de usuarios
+// 📌 Importación de los componentes de ruta
+import Login from "./routes/login";
+import Signup from "./routes/signup";
+import Dashboard from "./routes/dashboard";
+import LoginUsuario from "./routes/LoginUsuario";
+import DashboardUsuarios from "./routes/dashboardUsuarios";
 
-// Definición de las rutas de la aplicación
+// 📌 Definición de las rutas de la aplicación
 const router = createBrowserRouter([
-  {
-    path: "/", // Ruta principal
-    element: <Login />, // Página de inicio
-  },
-  {
-    path: "/login-usuario", // Ruta para LoginUsuario
-    element: (
-      <AuthProviderUsuarios> {/* Proveedor específico para LoginUsuario */}
-        <LoginUsuario /> {/* Componente de LoginUsuario */}
-      </AuthProviderUsuarios>
-    ),
-  },
-  {
-    path: "/dashboardUsuarios", // Ruta para el Dashboard de usuarios
-    element: (
-      <AuthProviderUsuarios> {/* Asegúrate de envolver DashboardUsuarios con el proveedor de autenticación */}
-        <DashboardUsuarios /> {/* Componente de DashboardUsuarios */}
-      </AuthProviderUsuarios>
-    ),
-  },
-  {
-    path: "/signup", // Ruta para el registro
-    element: <Signup />, // Página de registro
-  },
-  {
-    path: "/dashboard", // Ruta para el Dashboard
-    element: <Dashboard />, // Componente del Dashboard
-  },
+  { path: "/", element: <Login /> }, // Ruta para el login principal
+  { path: "/login-usuario", element: <LoginUsuario /> }, // Ruta para login de usuario
+
+  { path: "/dashboard-usuario", element: <DashboardUsuarios /> }, // 🔹 Asegúrate de que la ruta sea esta
+  { path: "/signup", element: <Signup /> }, // Ruta para el registro de nuevos usuarios
+  { path: "/dashboard", element: <Dashboard /> }, // Ruta para el dashboard general
 ]);
 
-// Renderización de la aplicación
+// 📌 Renderización de la aplicación
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <AuthProvider> {/* Proveedor general de autenticación */}
-      <CargoProvider> {/* Proveedor para contexto de cargos */}
-        <RouterProvider router={router} /> {/* Proveedor de rutas */}
-      </CargoProvider>
+    <AuthProvider> {/* Proveedor de autenticación general */}
+      <AuthProviderUsuario> {/* Proveedor de autenticación para empleados */}
+        <RouterProvider router={router} /> {/* Proveedor de enrutamiento */}
+      </AuthProviderUsuario>
     </AuthProvider>
   </React.StrictMode>
 );

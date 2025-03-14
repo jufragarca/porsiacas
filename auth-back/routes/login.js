@@ -47,7 +47,7 @@ router.post("/", async (req, res) => {
         return res.status(200).json(jsonResponse(200, {
           mensaje: "Autenticación exitosa",
           user: {
-            id_empresa: empresa.id, // Enviamos el ID de la empresa
+            id: empresa.id, // Enviamos el ID de la empresa
           },
         }));
       } else {

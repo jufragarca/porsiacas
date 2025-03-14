@@ -1,52 +1,31 @@
 const express = require("express");
 const router = express.Router();
 
-// Importar funciones desde el esquema de consulta
-const {
-  silaEmpreExistEmpleadosConsulta,
-  consultaEmpleados,
-} = require("../schema/empleados.consulta"); // Cambia la ruta según tu estructura
-
-// Función para crear una respuesta JSON estándar
-const jsonResponse = (status, data) => ({
-  status,
-  data,
-});
-
-// Log inicial para verificar que el archivo se carga
-console.log("Inicializando router de empleados...");
-
 // Ruta principal que recibe `id_empresa`
 router.post("/", async (req, res) => {
-  console.log("Entrando a la ruta principal /...");
-  console.log("Cuerpo de la solicitud:", req.body);
+    console.log("Entrando a la ruta EmpleadosListar");
+    console.log("Cuerpo de la solicitud:", req.body);
 
-  const { id_empresa } = req.body;
 
-  if (!id_empresa) {
-    console.error("id_empresa no proporcionado.");
-    return res.status(400).json(
-      jsonResponse(400, {
-        error: "El id_empresa es obligatorio.",
-      })
-    );
-  }
-  console.log("id_empresa en empleados linea 35:", id_empresa);
+    if (!id_empresa) {
+        console.error("id_empresa no proporcionado em empleadosListar");
+        return res.status(400).json(
+          jsonResponse(400, {
+            error: "El id_empresa es obligatorio.",
+          })
+        );
+      }
+      console.log("id_empresa en empleadosListar linea 18:", id_empresa);
 
-  // Convertir a número y validar
-  const EmpleadoId = parseInt(id_empresa, 10);
-  console.log("id_empleados.js convertido a número:", EmpleadoId);
-
-  if (isNaN(EmpleadoId)) {
-    console.error("El id_empresa no es un número válido.");
-    return res.status(400).json(
-      jsonResponse(400, {
-        error: "El id_empresa debe ser un número válido.",
-      })
-    );
-  }
-  console.log("Estoy en ruta empleados, línea 48");
-
+      const datos = {
+        id: nombre_area,
+        nombre: inombre,
+        correo: correo,
+        id_cargo: id_cargo,
+        jefe:jefe,
+        password: password
+      };
+  // Función para listar los cargos
   try {
     // Verificar si existe la empresa
     const silaEmpresaExiste = await new Promise((resolve, reject) => {
@@ -104,7 +83,7 @@ router.post("/", async (req, res) => {
     );
   }
 });
-
-// Log final para confirmar que se exporta el router
-console.log("Exportando el router de empleados...");
-module.exports = router;
+  module.exports = {
+    CrearAreaConsulta,
+    verificarTipoDato
+  };

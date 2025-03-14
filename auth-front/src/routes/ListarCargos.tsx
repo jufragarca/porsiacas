@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import Modal from "react-modal";
-import { obtenerCargos } from "../rutasController/ListarCargos";
-import { obtenerAreas } from "../rutasController/ListarAreas";
+import { obtenerCargos } from "../rutasController/ListarCargosParaCargos";
+import { obtenerAreas } from "../rutasController/ListarAreasParaCargos";
 import { ModificarCargos } from "../rutasController/ModificarCargos";
 
-const ListarCargos = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const initialIdEmpresa = queryParams.get("id");
+// Definimos los tipos para Cargo y Area
+interface Cargo {
+  id: number;
+  nombre: string;
+  id_area: number;
+  id_empresa: number;
+}
 
-  const [idEmpresa, setIdEmpresa] = useState<number | null>(
-    initialIdEmpresa ? parseInt(initialIdEmpresa) : null
-  );
+interface Area {
+  id: string;
+  nombre: string;
+}
+
+interface Props {
+  id_empresa: number; // id_empresa se pasa como una prop
+}
+
+const ListarCargos = ({ id_empresa }: Props) => {
+  console.log("id_empresa en ListarCargos", id_empresa);
   const [mensaje, setMensaje] = useState<string>("");
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -20,50 +30,66 @@ const ListarCargos = () => {
   const [cargoSeleccionado, setCargoSeleccionado] = useState<Cargo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (id_empresa !== null) {
+      fetchCargosYAreas();
+    }
+  }, [id_empresa]);
+
+  const fetchCargosYAreas = async () => {
+    if (id_empresa === null) return; // Asegúrate de que id_empresa no sea null
+
+    setLoading(true);
+    try {
+      const cargosData = await obtenerCargos(id_empresa);
+      const areasData = await obtenerAreas({ id_empresa }); // Pasar id_empresa correctamente
+
+      if (!Array.isArray(areasData)) {
+        console.error("❌ Error: áreasData no es un array válido.");
+        return;
+      }
+
+      const areasTransformadas: Area[] = areasData.map((area) => ({
+        id: area.id_area,
+        nombre: area.nombre,
+      }));
+
+      setCargos(cargosData || []);
+      setAreas(areasTransformadas);
+      setMensaje("✅ Cargos y áreas cargados correctamente.");
+    } catch (error) {
+      setMensaje("❌ Error al cargar los datos.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openModal = (cargo: Cargo) => {
     setCargoSeleccionado(cargo);
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (!idEmpresa) return;
-
-    const fetchCargosYAreas = async () => {
+    if (id_empresa !== null) {
       setLoading(true);
-      try {
-        const cargosData = await obtenerCargos(idEmpresa);
-        const areasData = await obtenerAreas(idEmpresa);
-
-        setCargos(cargosData || []);
-        setAreas(areasData || []);
-        setMensaje("Cargos y áreas cargados correctamente.");
-      } catch (error) {
-        setMensaje("Error al cargar los datos.");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCargosYAreas();
-  }, [idEmpresa]);
+      await fetchCargosYAreas(); // 🔹 Recargar lista al cerrar el modal
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <div className="card-body">
-        {loading && <div>Loading...</div>}
+        {loading && <div>Cargando...</div>}
         {mensaje && <div>{mensaje}</div>}
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>id</th>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Área</th>
-              <th>IdEmpresa</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -72,8 +98,12 @@ const ListarCargos = () => {
               <tr key={cargo.id}>
                 <td>{cargo.id}</td>
                 <td>{cargo.nombre}</td>
-                <td>{areas.find((area) => area.id === cargo.id_area.toString())?.nombre || "Sin área"}</td>
-                <td>{cargo.id_empresa}</td>
+                <td>
+                  {
+                    areas.find((area) => area.id === cargo.id_area.toString())?.nombre ||
+                    "Sin área"
+                  }
+                </td>
                 <td>
                   <button onClick={() => openModal(cargo)} className="btn btn-info">
                     Modificar
@@ -88,52 +118,58 @@ const ListarCargos = () => {
       <Modal isOpen={isModalOpen} onRequestClose={closeModal}>
         <h2>Modificar Cargo</h2>
         {cargoSeleccionado && (
-          <div>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="text"
-                value={cargoSeleccionado.id}
-                readOnly
-                className="form-control"
-              />
-              <input
-                type="text"
-                value={cargoSeleccionado.nombre}
-                onChange={(e) =>
-                  setCargoSeleccionado({ ...cargoSeleccionado, nombre: e.target.value })
+          <form onSubmit={(e) => e.preventDefault()}>
+            <input type="text" value={cargoSeleccionado.id} readOnly className="form-control" />
+            <input
+              type="text"
+              value={cargoSeleccionado.nombre}
+              onChange={(e) =>
+                setCargoSeleccionado({
+                  ...cargoSeleccionado,
+                  nombre: e.target.value,
+                })
+              }
+              className="form-control"
+            />
+            <select
+              value={cargoSeleccionado.id_area}
+              onChange={(e) =>
+                setCargoSeleccionado({
+                  ...cargoSeleccionado,
+                  id_area: parseInt(e.target.value),
+                })
+              }
+              className="form-control"
+            >
+              <option value="">Seleccionar Área</option>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>
+                  {area.nombre}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={async () => {
+                if (cargoSeleccionado) {
+                  await ModificarCargos(
+                    cargoSeleccionado,
+                    setLoading,
+                    setMensaje,
+                    setCargos,
+                    id_empresa
+                  );
+                  closeModal();
                 }
-              />
-              <select
-                value={cargoSeleccionado.id_area}
-                onChange={(e) =>
-                  setCargoSeleccionado({ ...cargoSeleccionado, id_area: parseInt(e.target.value) })
-                }
-              >
-                <option value="">Seleccionar Área</option>
-                {areas.map((area) => (
-                  <option key={area.id} value={area.nombre}>
-                    {area.nombre}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={() => ModificarCargos(cargoSeleccionado, setLoading, setMensaje)}
-                className="btn btn-primary"
-              >
-                Guardar Cambios
-              </button>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="btn btn-secondary"
-              >
-                Cerrar
-              </button>
-            </form>
-          </div>
+              }}
+              className="btn btn-primary"
+            >
+              Guardar Cambios
+            </button>
+            <button type="button" onClick={closeModal} className="btn btn-secondary">
+              Cerrar
+            </button>
+          </form>
         )}
       </Modal>
     </>

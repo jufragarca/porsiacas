@@ -1,55 +1,60 @@
-import { API_URL } from "../auth/authConstants";
+// 📌 Archivo: CrearAreasController.tsx (Controlador)
+// 🔹 Este archivo actúa como el intermediario entre el frontend y el backend para la creación de áreas.
+// 🔹 Recibe los datos desde `CrearAreas.tsx`, los valida y los envía al backend mediante una petición `POST`.
+// 🔹 Si la respuesta del backend es válida, devuelve la nueva área creada a `CrearAreas.tsx` para que pueda mostrarla en la lista de áreas disponibles.
 
-// Función para enviar datos al backend
-export const enviarDatos = async (data: { nombre_area: string; id_Empresa: string }) => {
+// Importamos la URL base de la API
+import { API_URL } from "../auth/authConstants"; // ✅ Esto obtiene la URL base del backend, definida en otro archivo.
+
+export const crearArea = async (data: { nombre_area: string; id_empresa: string | number }) => {
+  // 🔹 Esta función es asíncrona porque realiza una petición HTTP.
+  
   try {
-    // Validar que data sea un objeto válido
     if (!data || typeof data !== "object") {
-      throw new Error("Los datos enviados no son un JSON válido.");
+      throw new Error("❌ Los datos enviados no son un JSON válido.");
     }
 
-    const { nombre_area, id_Empresa } = data;
+    // Extraemos los valores desde `data`
+    let { nombre_area, id_empresa } = data;
 
-    // Validar el campo 'nombre_area'
-    if (!nombre_area || typeof nombre_area !== "string") {
-      throw new Error("El campo 'nombre_area' no es válido.");
+    // Convertir `id_empresa` a número si es un string
+    if (typeof id_empresa === "string") {
+      id_empresa = Number(id_empresa); // Convertimos a número
     }
 
-    // Validar el campo 'id_Empresa'
-    if (!id_Empresa || typeof id_Empresa !== "string") {
-      throw new Error("El campo 'id_Empresa' no es válido.");
+    // Validamos los datos antes de enviarlos al backend
+    if (!nombre_area || typeof nombre_area !== "string" || nombre_area.trim() === "") {
+      throw new Error("❌ El campo 'nombre_area' no es válido.");
     }
 
-    console.log("✅ Datos validados, enviando al servidor...");
+    if (!id_empresa || typeof id_empresa !== "number" || isNaN(id_empresa)) {
+      throw new Error("❌ El campo 'id_empresa' no es válido.");
+    }
 
-    // Hacer la solicitud al backend
+    // Enviamos los datos al backend mediante una petición `POST`
     const response = await fetch(`${API_URL}/CrearArea`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre_area, id_empresa: id_Empresa }),
+      body: JSON.stringify({ nombre_area, id_empresa }),
     });
 
-    console.log("📡 Datos enviados:", { nombre_area, id_empresa: id_Empresa });
-
-    // Verificar si la respuesta es exitosa
+    // Si la respuesta no es exitosa, lanzamos un error con el mensaje del backend
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Error en el servidor: ${JSON.stringify(errorData)}`);
+      throw new Error(`❌ Error en el servidor (${response.status}): ${JSON.stringify(errorData)}`);
     }
 
-    // Convertir la respuesta a JSON
+    // Obtenemos la respuesta del backend
     const result = await response.json();
 
-    // Verificar si la respuesta es un objeto válido
     if (!result || typeof result !== "object") {
-      throw new Error("La respuesta del servidor no es válida.");
+      throw new Error("❌ La respuesta del servidor no es válida.");
     }
 
-    console.log("✅ Respuesta recibida del backend:", result);
-    return result; // 🔥 📌 Devuelve los datos recibidos
-
+    // Si todo salió bien, devolvemos la respuesta al frontend
+    return result; // Devolvemos la nueva área creada a `CrearAreas.tsx` para que se actualice en la lista
   } catch (error) {
-    console.error("❌ Error al enviar los datos:", error);
-    throw error; // 🔥 Lanza el error para capturarlo en `CrearAreas.tsx`
+    // Si ocurre un error en cualquier parte del proceso, se captura aquí y se muestra en consola.
+    throw error; // Relanzamos el error para que `CrearAreas.tsx` pueda manejarlo en su `catch`
   }
 };

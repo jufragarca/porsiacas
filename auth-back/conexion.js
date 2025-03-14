@@ -1,4 +1,4 @@
-// db.js
+// auth-back/conexion.js
 const mysql = require('mysql2');
 require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 

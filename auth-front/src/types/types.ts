@@ -1,6 +1,6 @@
 // Definir las interfaces para los datos de la empresa y la respuesta de autenticación
-//auth-front/src/types/types.ts
-export interface AuthResponse {///ESTO ESTA RELACIONADO CON LE JSON RESPNSE DE NODE JS
+
+export interface AuthResponse { // Esta es la respuesta que espera tu API
   body: {
     user: User;  // Información del usuario autenticado
     accessToken: string;
@@ -8,20 +8,16 @@ export interface AuthResponse {///ESTO ESTA RELACIONADO CON LE JSON RESPNSE DE N
   };
 }
 
-export interface AuthResponseError {//esta funcion la estoy llamando en singup.tsx
+export interface AuthResponseError { // Esta es la respuesta cuando ocurre un error
   body: {
     error: string;  // Mensaje de error en caso de fallo
   };
 }
 
-// Modificar la interfaz User para que refleje los campos de tu tabla empresas
+// Modificar la interfaz User para que refleje los campos de tu tabla de empresas
 export interface User {
-  id: string;  // El ID de la empresa
-  nit: string;  // Número de identificación tributaria
-  nombre_empresa: string;  // Nombre de la empresa
-  correo_empresa: string;  // Correo de la empresa
-  nombre_contacto: string;  // Nombre del contacto en la empresa
-  celular_contacto: string;  // Celular del contacto
-  
+  id_empresa: number;  // Asegúrate de que el tipo sea 'number'
+  nombre: string;
+  correo: string;
+  // Otras propiedades que pueda tener el User
 }
-

@@ -1,62 +1,75 @@
-import { API_URL } from "../auth/authConstants";
-import { Area } from "../types";  // Asegúrate de que el tipo 'Area' esté importado correctamente
+// 📌 Archivo: ModificarAreasController.tsx (Controlador)
+// 🔹 Este archivo se encarga de enviar una solicitud al backend para modificar los datos de un área existente.
+// 🔹 Es utilizado en `ModificarAreas.tsx` para actualizar la información del área seleccionada en la interfaz.
+// 🔹 Recibe un objeto `areaSeleccionada`, valida sus datos y envía una petición `POST` al backend con la información modificada.
+// 🔹 Tras una modificación exitosa, llama a `reloadAreas()` para actualizar la lista de áreas en `ListarAreas.tsx`.
 
-// ModificarAreas con tipo específico
+// ✅ Importamos la URL base de la API desde `authConstants.ts`, donde está centralizada la configuración del backend.
+import { API_URL } from "../auth/authConstants"; 
+
+// 🔹 Definimos la interfaz `Area` para tipar correctamente los datos esperados.
+interface Area {
+  id_area: number;        // ✅ Identificador único del área
+  nombre_area: string;    // ✅ Nombre del área
+  id_empresa: number;     // ✅ ID de la empresa a la que pertenece el área
+}
+
+// 🔹 Función asincrónica que se encarga de modificar un área en el backend.
 export const ModificarAreas = async (
-  areaSeleccionada: Area, // Usar la interfaz Area
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setMensaje: React.Dispatch<React.SetStateAction<string>>
+  areaSeleccionada: Area, // ✅ Recibe el área seleccionada que se desea modificar.
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>, // ✅ Controla el estado de carga en la interfaz.
+  setMensaje: React.Dispatch<React.SetStateAction<string>>, // ✅ Muestra mensajes de éxito o error en la UI.
+  reloadAreas: () => void // ✅ Función que recarga la lista de áreas tras una modificación exitosa.
 ) => {
   if (areaSeleccionada) {
-    // Preparar los datos a modificar según el área seleccionada
+    // 🔹 Construimos el objeto con los datos a enviar al backend.
     const areaModificar = {
-      id_area: areaSeleccionada.id_area, // Usamos el id_area de la interfaz
-      nombre_area: areaSeleccionada.nombre_area, // Cambié nombre a nombre_area
-      id_empresa: areaSeleccionada.id_empresa, // Usamos el id_empresa de la interfaz
+      id_area: areaSeleccionada.id_area,
+      nombre_area: areaSeleccionada.nombre_area,
+      id_empresa: areaSeleccionada.id_empresa,
     };
 
-    // Mostrar los datos antes de enviarlos
-    console.log("Datos a modificar (antes de enviar):", areaModificar);
+    // console.log("📤 [ModificarAreasController] Datos a modificar:", areaModificar);
+    // 🔹 Este `console.log` permite verificar qué datos se están enviando al backend.
 
-    setLoading(true); // Inicia el estado de carga
-    console.log("Iniciando solicitud al servidor..."); // Confirmación de inicio de solicitud
+    setLoading(true); // ✅ Indicamos que la operación está en curso.
 
     try {
-      // Mostrar el cuerpo de la solicitud antes de enviarla
-      console.log("Cuerpo de la solicitud (JSON):", JSON.stringify(areaModificar));
-
+      // 🔹 Enviamos una solicitud `POST` al backend con los datos del área a modificar.
       const response = await fetch(`${API_URL}/ModificarAreas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(areaModificar), // Envía los datos en formato JSON
+        body: JSON.stringify(areaModificar), // ✅ Convertimos el objeto en JSON antes de enviarlo.
       });
 
-      // Verificar si la respuesta es exitosa
       if (response.ok) {
+        // 🔹 Si la respuesta del servidor es correcta, extraemos el mensaje de éxito.
         const jsonData = await response.json();
-        console.log("Respuesta del servidor:", jsonData); // Ver respuesta del servidor
+        setMensaje(jsonData.mensaje || "Datos modificados exitosamente."); // ✅ Mostramos mensaje en la UI.
 
-        // Si la respuesta contiene un mensaje, mostrarlo
-        setMensaje(jsonData.mensaje || "Datos modificados exitosamente.");
-
-        // Puedes reemplazar el alert por un mensaje más amigable
+        // ✅ Mostramos una alerta con los datos modificados.
         alert(`Datos modificados exitosamente:
-          ID: ${areaModificar.id_area},  // Corregí el acceso a la propiedad
+          ID: ${areaModificar.id_area},  
           Nombre: ${areaModificar.nombre_area},
           ID Empresa: ${areaModificar.id_empresa}`);
+
+        reloadAreas(); // ✅ Recargamos la lista de áreas en `ListarAreas.tsx`.
       } else {
-        // Si la respuesta no es exitosa, manejar el error
+        // 🔹 Si la respuesta no es exitosa, mostramos el error en la consola.
         const errorText = await response.text();
-        console.log("Error en la respuesta del servidor:", errorText); // Ver error
-        setMensaje("Hubo un error al modificar el área.");
+        // console.log("❌ [ModificarAreasController] Error en la respuesta del servidor:", errorText);
+        setMensaje("Hubo un error al modificar el área."); // ✅ Mensaje de error en la UI.
       }
     } catch (error) {
-      console.error("Error al modificar el área:", error);
+      // console.error("❌ [ModificarAreasController] Error al modificar el área:", error);
+      // 🔹 Si hay un error en la petición (problemas de red, servidor caído, etc.), lo registramos y mostramos un mensaje.
+
       setMensaje("No se pudo conectar con el servidor.");
     } finally {
-      setLoading(false); // Finaliza el estado de carga
+      setLoading(false); // ✅ Finalizamos el estado de carga, sin importar el resultado.
     }
   } else {
-    console.log("No se ha seleccionado un área para modificar.");
+    // console.log("⚠️ [ModificarAreasController] No se ha seleccionado un área para modificar.");
+    // 🔹 Este `console.log` indica que no se ha seleccionado ningún área antes de intentar modificarla.
   }
 };

@@ -1,79 +1,79 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { enviarDatos } from "../rutasController/CrearAreasController";
+import React, { useState } from "react";
+import { crearArea } from "../rutasController/CrearAreasController";
+import "bootstrap/dist/css/bootstrap.min.css";
+import ListarAreas from "../routes/ListarAreas"; 
 
-const CrearAreas = () => {
-  const [nombre_area, setNombreArea] = useState(""); // Estado para el nombre del área
-  const [id_empresa, setIdEmpresa] = useState(""); // Estado para el ID de la empresa
-  const [mensajeExito, setMensajeExito] = useState<string | null>(null); // Estado para el mensaje de éxito
-  const location = useLocation();
-  const navigate = useNavigate();
+interface Area {
+  id_area: number;
+  nombre_area: string;
+  id_empresa: number;
+}
 
-  const queryParams = new URLSearchParams(location.search);
-  const id_empresa_from_url = queryParams.get("id");
+interface Props {
+  id_empresa: number;
+}
 
-  useEffect(() => {
-    if (id_empresa_from_url) {
-      setIdEmpresa(id_empresa_from_url);
+const CrearAreas: React.FC<Props> = ({ id_empresa }) => {
+  console.log("📌 [CrearAreas] id_empresa recibido:", id_empresa);
+
+  const [mensaje, setMensaje] = useState<string>("");
+  const [nombreArea, setNombreArea] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [actualizarLista, setActualizarLista] = useState<boolean>(false);
+
+  const handleCrearAreas = async () => {
+    if (!nombreArea.trim()) {
+      setMensaje("El nombre del área no puede estar vacío.");
+      return;
     }
-  }, [id_empresa_from_url]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const newAreaData = { id_Empresa: id_empresa, nombre_area };
-  
+    console.log("📤 [CrearAreas] id_empresa enviado:", id_empresa);
+    setLoading(true);
+
     try {
-      const response = await enviarDatos(newAreaData);
-  
-      console.log("🔍 Respuesta completa del backend:", response); // ✅ Depuración
-  
-      if (!response || typeof response !== "object") {
-        throw new Error("La respuesta del servidor no es válida.");
-      }
-  
-      // 📌 Si `nombre_area` no existe en la respuesta, mostrar un mensaje genérico
-      const areaCreada = response.nombre_area || "Área creada correctamente";
-      setMensajeExito(`✅ ${areaCreada}`);
-  
-      // Limpiar el mensaje después de 3 segundos
-      setTimeout(() => {
-        setMensajeExito(null);
+      const nuevaArea = await crearArea({ nombre_area: nombreArea, id_empresa });
+
+      if (nuevaArea) {
+        setMensaje("Área creada correctamente.");
         setNombreArea("");
-      }, 10000);
+        setActualizarLista(true); // ✅ Activa la actualización de ListarAreas
+      } else {
+        setMensaje("Error al crear el área.");
+      }
     } catch (error) {
-      console.error("❌ Error al enviar los datos:", error);
-      alert("❌ Error al crear el área. Intente nuevamente.");
+      setMensaje("Hubo un error al crear el área.");
+      console.error("❌ Error al crear el área:", error);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   return (
-    <div>
-      <h1>Gestión de Áreas</h1>
+    <div className="container mt-4">
+      <h2>Crear Área</h2>
+      {mensaje && <div className="alert alert-info">{mensaje}</div>}
 
-      {/* Mostrar mensaje de éxito si existe */}
-      {mensajeExito && (
-        <div className="alert alert-success" role="alert">
-          <h4 className="alert-heading">¡Éxito!</h4>
-          <p>{mensajeExito}</p>
-          <hr />
-          <p className="mb-0">Se ha registrado el área correctamente.</p>
-        </div>
+      <div className="mb-3">
+        <label className="form-label">Nombre del Área</label>
+        <input
+          type="text"
+          className="form-control"
+          value={nombreArea}
+          onChange={(e) => setNombreArea(e.target.value)}
+        />
+      </div>
+
+      <button className="btn btn-primary" onClick={handleCrearAreas} disabled={loading}>
+        {loading ? "Creando..." : "Crear Área"}
+      </button>
+
+      {/* 🔹 Se pasa `onAreaCreada` para actualizar la lista solo cuando se cree un área */}
+      {actualizarLista && (
+        <ListarAreas 
+          id_empresa={id_empresa} 
+          onAreaCreada={() => setActualizarLista(false)} 
+        />
       )}
-
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombreArea" className="form-label">Nombre del Área</label>
-          <input
-            type="text"
-            className="form-control"
-            id="nombreArea"
-            value={nombre_area}
-            onChange={(e) => setNombreArea(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Crear Área</button>
-      </form>
     </div>
   );
 };

@@ -4,35 +4,10 @@ let datos = {}; // Inicializamos como un objeto vacío
 // Conexión a la base de datos
 const db = require("../conexion"); // Asegúrate de que esta sea la conexión correcta a la base de datos
 
-// Función para verificar los tipos de datos
-const validarDatosBack = (id_empresa, id_area, nombre) => {
-  return new Promise((resolve, reject) => {
-    console.log("Entré a verificarTipoDato con los valores:", 
-                "id_empresa:", id_empresa, 
-                "id_area:", id_area, 
-                "nombre:", nombre);
-                
-    // Verificar el tipo de cada variable e imprimirlo en la consola
-    console.log("Tipo de dato de id_empresa:", typeof id_empresa);
-    console.log("Tipo de dato de id_area:", typeof id_area);
-    console.log("Tipo de dato de nombre:", typeof nombre);
-    
-    // Llenar la constante 'datos' con los valores obtenidos
-    datos = {
-        id_empresa,
-        id_area,
-        nombre
-    };
-
-    // Imprimir los valores en el objeto JSON
-    console.log("Datos finales después de la verificación:", datos);
-
-    resolve(datos); // Resolver con el objeto JSON
-  });
-};
 
 // Función para cargar las áreas relacionadas con el id_empresa
 const areasCargadas = (id_empresa) => {
+  console.log("id_emprsa en areasConcultacargar", id_empresa);
   return new Promise((resolve, reject) => {
     // Verificación de los valores de la constante global 'datos'
     console.log("Datos para cargar áreas:", datos);
@@ -61,6 +36,36 @@ const areasCargadas = (id_empresa) => {
     });
   });
 };
+
+
+// Función para verificar los tipos de datos
+const validarDatosBack = (id_empresa, id_area, nombre) => {
+  return new Promise((resolve, reject) => {
+    console.log("Entré a verificarTipoDato con los valores:", 
+                "id_empresa:", id_empresa, 
+                "id_area:", id_area, 
+                "nombre:", nombre);
+                
+    // Verificar el tipo de cada variable e imprimirlo en la consola
+    console.log("Tipo de dato de id_empresa:", typeof id_empresa);
+    console.log("Tipo de dato de id_area:", typeof id_area);
+    console.log("Tipo de dato de nombre:", typeof nombre);
+    
+    // Llenar la constante 'datos' con los valores obtenidos
+    datos = {
+        id_empresa,
+        id_area,
+        nombre
+    };
+
+    // Imprimir los valores en el objeto JSON
+    console.log("Datos finales después de la verificación:", datos);
+
+    resolve(datos); // Resolver con el objeto JSON
+  });
+};
+
+
 
 // Exportar las funciones para que puedan ser utilizadas en otros módulos
 module.exports = {

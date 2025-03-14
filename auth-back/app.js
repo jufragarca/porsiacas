@@ -1,3 +1,5 @@
+
+// auth-back/app.js
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -35,7 +37,8 @@ app.use('/api/ModificarCargos', require('./routes/ModificarCargos'));
 app.use('/api/CrearArea', require('./routes/CrearArea'));
 app.use('/api/ListarAreas', require('./routes/ListarAreas'));
 app.use('/api/ModificarAreas', require('./routes/ModificarAreas'));
-app.use('/api/LoginUsuario', require('./routes/LoginUsuario'));
+app.use('/api/LoginEmpleado', require('./routes/LoginEmpleado'));
+
 
 // Agrega la ruta para recibir audios
 // Agrega la ruta para recibir audios

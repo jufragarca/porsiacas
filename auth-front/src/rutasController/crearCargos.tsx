@@ -1,7 +1,8 @@
+// auth-front/src/rutasController/crearCargos.tsx
 import React from "react";
 
 // Función para enviar los datos al backend
-const CrearCargos = async ({ nombre, idArea, idEmpresa }: { nombre: string; idArea: string; idEmpresa: string }) => {
+const CrearCargos = async ({ nombre, id_area, id_empresa }: { nombre: string; id_area: string; id_empresa: string }) => {
   try {
     const response = await fetch("/api/cargos", {
       method: "POST",
@@ -10,8 +11,8 @@ const CrearCargos = async ({ nombre, idArea, idEmpresa }: { nombre: string; idAr
       },
       body: JSON.stringify({
         nombre,
-        id_area: idArea,
-        id_empresa: idEmpresa,
+        id_area, // Usamos el nombre correcto del campo
+        id_empresa, // Usamos el nombre correcto del campo
       }),
     });
 

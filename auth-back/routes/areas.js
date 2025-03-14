@@ -4,33 +4,33 @@ const { validarDatosBack, areasCargadas } = require("../schema/areasConcultaCarg
 
 // Ruta para recibir el idEmpresa desde el frontend
 router.post('/', async (req, res) => {
-  const { idEmpresa } = req.body; // Extraemos el idEmpresa del cuerpo de la solicitud
-  console.log("Estoy en areas", idEmpresa);
+  const { id_empresa } = req.body; // Extraemos el idEmpresa del cuerpo de la solicitud
+  console.log("Estoy en areas", id_empresa); // Usa id_empresa en lugar de id_Empresa
 
-  if (!idEmpresa) {
+  if (!id_empresa) { // Asegúrate de que el nombre coincide aquí también
     return res.status(400).json({ message: "El idEmpresa es obligatorio" });
   }
 
-  console.log("ID de la empresa recibido en areas:", idEmpresa);
+  console.log("ID de la empresa recibido en areas:", id_empresa);//vamos bien 
 
   try {
     // Validamos los datos, por ejemplo, verificar si el idEmpresa es válido
-    const validacion = await validarDatosBack(idEmpresa);
+    const validacion = await validarDatosBack(id_empresa);
 
     if (!validacion) {
       return res.status(400).json({ message: "Datos no válidos" });
     }
 
     // Cargar las áreas relacionadas con el idEmpresa
-    const areas = await areasCargadas(idEmpresa);
-    console.log("respuesta de areas", areas);
+    const areas = await areasCargadas(id_empresa);
+    console.log("respuesta de áreas", areas);
 
     // Verificar si se encontraron áreas
     if (areas.length > 0) {
       // Iterar sobre las áreas y verificar los tipos de datos
       areas.forEach((area) => {
         console.log("id_area:", area.id_area, "Tipo de id_area:", typeof area.id_area);
-        console.log("nombre_area:", area.nombre_area, "nombre_area:", typeof area.nombre_area);
+        console.log("nombre_area:", area.nombre_area, "Tipo de nombre_area:", typeof area.nombre_area);
         console.log("id_empresa:", area.id_empresa, "Tipo de id_empresa:", typeof area.id_empresa);
       });
 

@@ -23,3 +23,33 @@
   border-radius: 5px;
   margin: 5px;
 }
+.star-rating {
+  display: flex;
+  gap: 40px; /* Aumenta la separación entre las estrellas */
+}
+
+
+.texto-centrado {
+  text-align: center; /* Centra el texto horizontalmente */
+  font-size: 12px; /* Tamaño de fuente pequeño */
+  font-style: italic; /* Aplica cursiva al texto */
+}
+.estrellas {
+  display: flex; /* Usamos flexbox para alinear las estrellas */
+  justify-content: center; /* Centra las estrellas horizontalmente */
+  font-size: 50px; /* Tamaño de las estrellas */
+}
+
+.star {
+  position: relative; /* Necesario para el posicionamiento del pseudo-elemento */
+  color: red; /* Color de las estrellas */
+  margin: 0 10px; /* Aumenta el espaciado entre las estrellas */
+  font-size: 30px; /* Aumenta el tamaño de las estrellas */
+}
+
+.star2 {
+  position: relative; /* Necesario para el posicionamiento del pseudo-elemento */
+  color: blue; /* Color de las estrellas */
+  margin: 0 12px; /* Aumenta el espaciado entre las estrellas */
+  font-size: 30px; /* Aumenta el tamaño de las estrellas */
+}

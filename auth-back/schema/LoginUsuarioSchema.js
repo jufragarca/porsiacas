@@ -1,37 +1,37 @@
 const db = require("../conexion"); // Asegúrate de que esta sea la conexión correcta a la base de datos
 
-// Función que verifica los tipos de datos de correo y contraseña
-const verificarTipoDato = (correo, password, telefono) => {
+// Función que verifica los tipos de datos de correo y PASSWORD
+const verificarTipoDato = (correo, PASSWORD, telefono) => {
   // Primer console.log con los valores iniciales recibidos
-  console.log("estoy en LoginUsuarioSchema", "Correo:", correo, "password:", password, "telefono:", telefono);
+  console.log("estoy en LoginUsuarioSchema", "Correo:", correo, "PASSWORD:", PASSWORD, "telefono:", telefono);
 
   return new Promise((resolve, reject) => {
-    // Revisamos el tipo de dato de correo, password y telefono
-    if (typeof correo === 'string' && typeof password === 'string' && typeof telefono === 'number') {
+    // Revisamos el tipo de dato de correo, PASSWORD y telefono
+    if (typeof correo === 'string' && typeof PASSWORD === 'string' && typeof telefono === 'number') {
       console.log(
         "Entré a verificarTipoDato con los valores:",
         "correo:", correo, "Tipo de correo:", typeof correo, // Mostrar tipo de dato de correo
-        "password:", password, "Tipo de password:", typeof password, // Mostrar tipo de dato de password
+        "PASSWORD:", PASSWORD, "Tipo de PASSWORD:", typeof PASSWORD, // Mostrar tipo de dato de PASSWORD
         "telefono:", telefono, "Tipo de telefono:", typeof telefono // Mostrar tipo de dato de telefono
       );
     } else {
       // Convertir los datos si no son del tipo esperado
       correo = String(correo);
-      password = String(password);
+      PASSWORD = String(PASSWORD).toUpperCase();  // Convertir PASSWORD a mayúsculas
       telefono = Number(telefono);
     }
 
     // Llenar la variable con los nuevos datos convertidos
     const datos = {
       correo,
-      password,  // Asegúrate de usar 'nombre_area' en lugar de 'nombre'
+      PASSWORD,  // Asegúrate de que PASSWORD esté en mayúsculas
       telefono
     };
 
     // Imprimir los datos después de que hayan sido convertidos
     console.log("Datos finales después de la verificación:", 
                 "correo:", datos.correo, "Tipo de correo:", typeof datos.correo, 
-                "password:", datos.password, "Tipo de password:", typeof datos.password,
+                "PASSWORD:", datos.PASSWORD, "Tipo de PASSWORD:", typeof datos.PASSWORD,
                 "telefono:", datos.telefono, "Tipo de telefono:", typeof datos.telefono);
 
     resolve(datos); // Resolver con el objeto JSON que contiene los datos
@@ -44,13 +44,13 @@ const logearUsuario = async (datos) => {
   console.log("Datos para logear usuario:", datos);
 
   return new Promise((resolve, reject) => {
-    // Consulta SQL para verificar si el correo y la contraseña coinciden con algún usuario en la base de datos
+    // Consulta SQL para verificar si el correo y la PASSWORD coinciden con algún usuario en la base de datos
     const query = `
-      SELECT * FROM empleados WHERE correo = ? AND password = ? AND telefono = ?
+      SELECT * FROM empleados WHERE correo = ? AND PASSWORD = ? AND telefono = ?
     `;
 
     // Ejecutar la consulta utilizando parámetros para evitar inyecciones SQL
-    db.query(query, [datos.correo, datos.password, datos.telefono], (err, results) => {
+    db.query(query, [datos.correo, datos.PASSWORD, datos.telefono], (err, results) => {
       if (err) {
         // Si ocurre un error en la consulta, se muestra un mensaje de error
         console.error("Error en la consulta para logear al usuario:", err);

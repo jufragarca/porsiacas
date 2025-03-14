@@ -1,66 +1,84 @@
-const express = require('express'); // Módulo para crear aplicaciones web y manejar solicitudes HTTP.
-const router = express.Router(); // Crear un enrutador de Express
-const multer = require('multer'); // Middleware para manejar la carga de archivos en solicitudes HTTP.
-const db = require("../conexion"); // Módulo personalizado para manejar la conexión a la base de datos.
-const path = require('path'); // Módulo para manejar rutas de archivos.
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const db = require("../conexion");
+const path = require('path');
+const fs = require('fs'); // Se agrega para manejar archivos y directorios
 
-// Configuración de multer para la carga de archivos
+console.log("🔥 Servidor escuchando en /RecibeAudios");
+
+// Middleware para parsear JSON y datos de formularios
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+
+// Configuración de `multer` para guardar el archivo de audio
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../archivos_audios'); // Ruta donde se guardarán los archivos.
-    cb(null, uploadPath); // Se confirma la ruta de destino.
-    console.log('Destino: ' + uploadPath);
+    const uploadPath = path.join(__dirname, '../audios/archivos_audios'); // ✅ Ruta corregida
+
+    // Verificar si la carpeta existe, si no, crearla
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    cb(null, uploadPath);
+    console.log('📁 Destino del archivo:', uploadPath);
   },
   filename: (req, file, cb) => {
-    const fileName = Date.now() + path.extname(file.originalname); // Se crea un nombre único para cada archivo.
-    cb(null, fileName); // Se confirma el nombre del archivo.
-    console.log('Nombre del archivo: ' + fileName); // Imprime el nombre del archivo
+    const fileName = Date.now() + path.extname(file.originalname);
+    cb(null, fileName);
+    console.log('🎙️ Archivo guardado como:', fileName);
   }
 });
 
-// Inicialización de multer con la configuración de almacenamiento
 const upload = multer({ storage: storage });
 
+// ✅ Ruta para recibir un solo audio + `id_usuario` + `score`
+router.post('/', upload.single('audio'), (req, res) => {
+  
+  console.log("📩 Nueva solicitud recibida en /RecibeAudios");
+  console.log("🔍 req.body completo:", req.body);
+  console.log("🔍 req.file:", req.file);
 
-console.log("estoy en RecibeAudios")
-// Ruta para recibir los audios y guardarlos en la base de datos
-router.post('/RecibeAudios', upload.fields([
-  { name: 'audio1', maxCount: 1 },
-  { name: 'audio2', maxCount: 1 },
-  { name: 'audio3', maxCount: 1 }
-]), (req, res) => {
-  const { id } = req.body; // Se obtiene el ID del usuario desde el cuerpo de la solicitud.
-  console.log('ID recibido:', id); // Verifica que el id esté presente
+  const { id_usuario, score } = req.body; // Obtener datos enviados
 
-  // Verificar si los archivos fueron recibidos
-  console.log('Archivos recibidos:', req.files); // Verifica los archivos que llegaron
+  console.log('📌 ID Usuario recibido:', id_usuario);
+  console.log('⭐ Score recibido:', score);
 
-
-  const audio1 = req.files['audio1'] ? req.files['audio1'][0].filename : null;
-  const audio2 = req.files['audio2'] ? req.files['audio2'][0].filename : null;
-  const audio3 = req.files['audio3'] ? req.files['audio3'][0].filename : null;
-
-  // Verificación de si los audios fueron recibidos
-  if (!audio1 && !audio2 && !audio3) {
-    console.log('No se recibieron audios'); // Agregar un log si no llegaron audios
-    return res.status(400).json({ error: 'No se recibieron audios.' });
+  // Verificación de datos recibidos
+  if (!id_usuario) {
+    console.log('⚠️ ERROR: No se recibió `id_usuario`');
+    return res.status(400).json({ error: 'No se recibió id_usuario' });
   }
 
-  // Mostrar los archivos que se guardarán
-  console.log('Archivos a guardar:', { audio1, audio2, audio3 });
+  if (!score) {
+    console.log('⚠️ ERROR: No se recibió `score`');
+    return res.status(400).json({ error: 'No se recibió score' });
+  }
 
-  // Insertar los datos en la base de datos
-  const query = 'INSERT INTO audios (id_usuario, audio1, audio2, audio3) VALUES (?, ?, ?, ?)';
-  const values = [id, audio1, audio2, audio3];
+  if (!req.file) {
+    console.log('⚠️ ERROR: No se recibió ningún archivo de audio');
+    return res.status(400).json({ error: 'No se recibió ningún archivo de audio.' });
+  }
+
+  const audio = req.file.filename; // Nombre del archivo guardado
+  console.log('✅ Archivo recibido correctamente:', audio);
+  
+  // 🔍 Verificar el formato MIME del audio recibido
+  console.log('🎵 Formato del archivo recibido:', req.file.mimetype);
+
+  // Insertar datos en la base de datos
+  const query = 'INSERT INTO audios (id_usuario, score, audio) VALUES (?, ?, ?)';
+  const values = [id_usuario, score, audio];
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error('Error al guardar los audios:', err);
-      return res.status(500).json({ error: 'Error al guardar los audios.' });
+      console.error('❌ Error al guardar el audio en la BD:', err);
+      return res.status(500).json({ error: 'Error al guardar el audio.' });
     }
-    console.log('Audios guardados correctamente');
-    res.status(200).json({ message: 'Audios guardados correctamente.' });
+    console.log('✅ Audio guardado correctamente en la BD');
+    res.status(200).json({ message: 'Audio guardado correctamente.' });
   });
 });
 
-module.exports = router; // Exportar el enrutador para que pueda ser utilizado en otros archivos
+module.exports = router;

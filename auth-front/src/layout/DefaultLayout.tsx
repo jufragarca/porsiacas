@@ -1,4 +1,4 @@
-//auth-front/src/layout/DefaultLayout.tsx
+// auth-front/src/layout/DefaultLayout.tsx
 import { Link } from "react-router-dom";
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -20,7 +20,6 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
         <nav className="container text-center">
           <h1>
             <Link to="/" className="text-decoration-none text-dark">
-              {/* Aquí puedes agregar el nombre de la app o logo */}
               Mi Aplicación
             </Link>
           </h1>
@@ -42,10 +41,10 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
                 </Link>
               </li>
               <li>
-  <Link to="/login-usuario" className="btn btn-outline-secondary">
-    Login Usuario
-  </Link>
-</li>
+                <Link to="/login-usuario" className="btn btn-outline-secondary">
+                  Login Usuario
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>

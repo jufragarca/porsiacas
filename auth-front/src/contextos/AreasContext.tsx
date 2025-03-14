@@ -23,7 +23,7 @@ export const AreaProvider = ({ children }: { children: React.ReactNode }) => {
   // Paso 4: useEffect para monitorear cambios en areaData.
   useEffect(() => {
     if (areaData) {
-      console.log("Datos recibidos en el contexto (AreaData):", areaData); // Muestra en consola los datos del área
+      //console.log("Datos recibidos en el contexto (AreaData):", areaData); // Muestra en consola los datos del área
       DatosConAreasALaApiCrearAreas(areaData); // Llama a la función para cargar las áreas
     }
   }, [areaData]); // El efecto se ejecuta cada vez que `areaData` cambia

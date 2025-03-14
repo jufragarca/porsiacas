@@ -1,123 +1,144 @@
-import React, { useState } from "react";
-import CrearEmpleado from "./Empleados";
-import Cargos from "../routes/Cargos";
-import ListarCargos from "../routes/ListarCargos";
-import CrearArea from "../routes/CrearAreas";
-import ListarAreas from "../routes/ListarAreas";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Empleados from "./Empleados";
+import ListarEmpleados from "./ListarEmpleados";
+import Cargos from "./Cargos";
+import ListarCargos from "./ListarCargos";
+import CrearArea from "./CrearAreas";
+import ListarAreas from "./ListarAreas";
 import DefaultLayout from "../layout/DefaultLayout";
+import { useAuth } from "../auth/AuthProvider";
 
 const Dashboard = () => {
-  const [isCrearEmpleadoVisible, setIsCrearEmpleadoVisible] = useState(false);
-  const [isCargosVisible, setIsCargosVisible] = useState(false);
-  const [isAreasVisible, setIsAreasVisible] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [id, setId] = useState<number | null>(null);
+
+  // Estados para las secciones
+  const [activeSection, setActiveSection] = useState<"areas" | "cargos" | "empleados" | null>("areas");
+
+  // Estados internos de cada sección
+  const [isCargarAreasVisible, setIsCargarAreasVisible] = useState(false);
+  const [isListarAreasVisible, setIsListarAreasVisible] = useState(false);
+
   const [isCargarCargosVisible, setIsCargarCargosVisible] = useState(false);
   const [isListarCargosVisible, setIsListarCargosVisible] = useState(false);
-  const [isCargarAreasVisible, setIsCargarAreasVisible] = useState(false);//estos dos son los que estan relacionadas con areas
-  const [isListarAreasVisible, setIsListarAreasVisible] = useState(false);//estos dos son los que estan relacionadas con areas
 
-  // Funciones de alternancia, asegurando que solo uno esté activo
-  const toggleAreas = () => {
-    setIsAreasVisible(!isAreasVisible);
-    setIsCargosVisible(false);
-    setIsCrearEmpleadoVisible(false);
+  const [isCargarEmpleadosVisible, setIsCargarEmpleadosVisible] = useState(false);
+  const [isListarEmpleadosVisible, setIsListarEmpleadosVisible] = useState(false);
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("id_empresa") || sessionStorage.getItem("id_empresa");
+    if (storedId) {
+      const parsedId = Number(storedId);
+      if (!isNaN(parsedId)) {
+        console.log("✅ [Dashboard] ID cargado desde storage:", parsedId);
+        setId(parsedId);
+      } else {
+        console.error("⚠️ [Dashboard] El ID no es válido:", storedId);
+      }
+    } else {
+      console.error("⚠️ [Dashboard] No se encontró un ID en storage");
+    }
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
-  const toggleCrearEmpleado = () => {
-    setIsCrearEmpleadoVisible(!isCrearEmpleadoVisible);
-    setIsAreasVisible(false);
-    setIsCargosVisible(false);
-  };
+  // Cambiar de sección
+  const toggleSection = (section: "areas" | "cargos" | "empleados") => {
+    setActiveSection(activeSection === section ? null : section);
 
-  const toggleCargos = () => {
-    setIsCargosVisible(!isCargosVisible);
-    setIsAreasVisible(false);
-    setIsCrearEmpleadoVisible(false);
-  };
-
-  const toggleCargarCargos = () => {
-    setIsCargarCargosVisible(!isCargarCargosVisible);
-    setIsListarCargosVisible(false);
-  };
-
-  const toggleListarCargos = () => {
-    setIsListarCargosVisible(!isListarCargosVisible);
-    setIsCargarCargosVisible(false);
-  };
-
-  const toggleCrearAreas = () => {
-    setIsCargarAreasVisible(!isCargarAreasVisible);
-    setIsListarAreasVisible(false);
-  };
-
-  const toggleMostrarAreas = () => {
-    setIsListarAreasVisible(!isListarAreasVisible);
-    setIsCargarAreasVisible(false);
+    // Resetear los estados internos al cambiar de sección
+    if (section !== "areas") {
+      setIsCargarAreasVisible(false);
+      setIsListarAreasVisible(false);
+    }
+    if (section !== "cargos") {
+      setIsCargarCargosVisible(false);
+      setIsListarCargosVisible(false);
+    }
+    if (section !== "empleados") {
+      setIsCargarEmpleadosVisible(false);
+      setIsListarEmpleadosVisible(false);
+    }
   };
 
   return (
     <DefaultLayout>
       <div className="dashboard-container">
         <h1>Bienvenido al Dashboard</h1>
+        <h3>ID: {id ? id : "No disponible"}</h3>
 
-        <div className="btn-group" role="group" aria-label="Opciones">
+        {/* Botones principales */}
+        <div className="btn-group">
           <button
-            type="button"
-            className={`btn ${isCargosVisible ? "btn-success" : "btn-danger"}`}
-            onClick={toggleCargos}
+            className={`btn ${activeSection === "areas" ? "btn-success" : "btn-warning"}`}
+            onClick={() => toggleSection("areas")}
           >
-            {isCargosVisible ? "Ocultar Cargos" : "Cargos"}
+            {activeSection === "areas" ? "Ocultar Áreas" : "Áreas"}
           </button>
-
           <button
-            type="button"
-            className={`btn ${isAreasVisible ? "btn-success" : "btn-warning"}`}
-            onClick={toggleAreas}
+            className={`btn ${activeSection === "cargos" ? "btn-success" : "btn-danger"}`}
+            onClick={() => toggleSection("cargos")}
           >
-            {isAreasVisible ? "Ocultar Áreas" : "Áreas"}
+            {activeSection === "cargos" ? "Ocultar Cargos" : "Cargos"}
           </button>
-
           <button
-            type="button"
-            className={`btn ${isCrearEmpleadoVisible ? "btn-success" : "btn-danger"}`}
-            onClick={toggleCrearEmpleado}
+            className={`btn ${activeSection === "empleados" ? "btn-success" : "btn-danger"}`}
+            onClick={() => toggleSection("empleados")}
           >
-            {isCrearEmpleadoVisible ? "Ocultar Crear Empleado" : "Crear Empleado"}
+            {activeSection === "empleados" ? "Ocultar Empleados" : "Empleados"}
           </button>
         </div>
 
-        <div>
-          {isCargosVisible && (
-            <div>
-              <button className="btn btn-success" onClick={toggleCargarCargos}>
-                Cargar Cargos
-              </button>
-              <button className="btn btn-success" onClick={toggleListarCargos}>
-                Listar Cargos
-              </button>
+        {/* Sección de Áreas */}
+        {activeSection === "areas" && (
+          <div>
+            <button className="btn btn-info" onClick={() => setIsCargarAreasVisible(!isCargarAreasVisible)}>
+              {isCargarAreasVisible ? "Ocultar Crear Áreas" : "Crear Áreas"}
+            </button>
+            <button className="btn btn-info" onClick={() => setIsListarAreasVisible(!isListarAreasVisible)}>
+              {isListarAreasVisible ? "Ocultar Listar Áreas" : "Listar Áreas"}
+            </button>
+            {isCargarAreasVisible && id && <CrearArea id_empresa={id} />}
+            {isListarAreasVisible && id && <ListarAreas id_empresa={id} />}
+          </div>
+        )}
 
-              {isCargarCargosVisible && <Cargos />}
-              {isListarCargosVisible && <ListarCargos />}
-            </div>
-          )}
+        {/* Sección de Cargos */}
+        {activeSection === "cargos" && (
+          <div>
+            <button className="btn btn-info" onClick={() => setIsCargarCargosVisible(!isCargarCargosVisible)}>
+              {isCargarCargosVisible ? "Ocultar Crear Cargos" : "Crear Cargos"}
+            </button>
+            <button className="btn btn-info" onClick={() => setIsListarCargosVisible(!isListarCargosVisible)}>
+              {isListarCargosVisible ? "Ocultar Listar Cargos" : "Listar Cargos"}
+            </button>
+            {isCargarCargosVisible && id && <Cargos id_empresa={id} />}
+            {isListarCargosVisible && id && <ListarCargos id_empresa={id} />}
+          </div>
+        )}
 
-          {isAreasVisible && (
-            <div>
-              <button className="btn btn-success" onClick={toggleCrearAreas}>
-                Crear Áreas
-              </button>
-              <button className="btn btn-success" onClick={toggleMostrarAreas}>
-                Listar Áreas
-              </button>
+        {/* Sección de Empleados */}
+        {activeSection === "empleados" && (
+          <div>
+            <button className="btn btn-info" onClick={() => setIsCargarEmpleadosVisible(!isCargarEmpleadosVisible)}>
+              {isCargarEmpleadosVisible ? "Ocultar Crear Empleados" : "Crear Empleados"}
+            </button>
+            <button className="btn btn-info" onClick={() => setIsListarEmpleadosVisible(!isListarEmpleadosVisible)}>
+              {isListarEmpleadosVisible ? "Ocultar Listar Empleados" : "Listar Empleados"}
+            </button>
+            {isCargarEmpleadosVisible && id && <Empleados id_empresa={id} />}
+            {isListarEmpleadosVisible && id && <ListarEmpleados id_empresa={id} />}
+          </div>
+        )}
 
-              {isCargarAreasVisible && <CrearArea />} {/* 🔴 **Aquí se usa `CrearArea`** */}
-              {isListarAreasVisible && <ListarAreas />} {/* 🔴 **Aquí se usa `ListarAreas`** */}
-              {/* 🔴 Esto significa que cuando isCargarAreasVisible es true, el componente CrearArea se renderiza en la pantalla.*/}
-
-            </div>
-          )}
-
-          {isCrearEmpleadoVisible && <CrearEmpleado />}
-        </div>
+        <button className="btn btn-danger" onClick={handleLogout}>
+          Cerrar Sesión
+        </button>
       </div>
     </DefaultLayout>
   );

@@ -1,63 +1,63 @@
 import { API_URL } from "../auth/authConstants";
 
-// Define una interfaz para las áreas recibidas
+// Define la interfaz para un área
 interface Area {
   id_area: number;
   nombre_area: string;
   id_empresa: number;
 }
 
-const CargarAreasParaCargos = async (): Promise<Area[] | null> => {
-  const queryParams = new URLSearchParams(window.location.search);
-  const idEmpresa = queryParams.get("id");
+// Define la interfaz para la respuesta esperada de la API (antes de procesar)
+interface AreaResponse {
+  id_area: number;
+  nombre_area: string;
+  id_empresa: number;
+}
 
-  if (!idEmpresa) {
-    return null;
-  }
-
-  const requestData = { idEmpresa };
-  const jsonString = JSON.stringify(requestData);
+const CargarAreasParaCargos = async (id_empresa: number): Promise<Area[] | null> => {
+  // Aquí es donde se debe imprimir el valor de 'id_empresa'
+  console.log("Cargando áreas para la empresa con ID:", id_empresa);
 
   try {
     const response = await fetch(`${API_URL}/areas`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: jsonString,
+      body: JSON.stringify({ id_empresa }),
     });
 
-    if (response.ok) {
-      const data = await response.json(); // Convertir la respuesta a JSON
-
-      // Verificar si la respuesta contiene áreas y procesarlas
-      if (data && Array.isArray(data.areas)) {
-        const areasProcesadas = data.areas
-          .map((area: any) => {
-            // Verificar si los datos del área son válidos
-            if (area.id_area && area.nombre_area && area.id_empresa) {
-              return {
-                id_area: area.id_area,
-                nombre_area: area.nombre_area,
-                id_empresa: area.id_empresa,
-              };
-            } else {
-              console.warn("Área con datos inválidos:", area);
-              return null; // Devolver null si los datos no son válidos
-            }
-          })
-          .filter((area): area is Area => area !== null); // Filtrar los elementos nulos y asegurar que el tipo es Area
-
-        console.log("Áreas procesadas:", areasProcesadas);
-        return areasProcesadas;
-      } else {
-        console.log("No se encontraron áreas en la respuesta.");
-        return null;
-      }
-    } else {
-      console.error("Error en la respuesta del backend. Status:", response.status);
+    if (!response.ok) {
+      console.error("❌ Error en la respuesta del backend:", response.status);
       return null;
     }
+
+    const data = await response.json();
+
+    if (!data || !Array.isArray(data.areas)) {
+      console.warn("⚠ No se encontraron áreas en la respuesta.");
+      return null;
+    }
+
+    // Mapear y validar las áreas, pero sin filtro
+    const areasProcesadas: Area[] = data.areas.map((area: AreaResponse): Area | null => {
+      if (
+        typeof area.id_area === "number" &&
+        typeof area.nombre_area === "string" &&
+        typeof area.id_empresa === "number"
+      ) {
+        return {
+          id_area: area.id_area,
+          nombre_area: area.nombre_area,
+          id_empresa: area.id_empresa,
+        };
+      } else {
+        console.warn("⚠ Datos inválidos en área:", area);
+        return null;
+      }
+    });
+
+    return areasProcesadas;
   } catch (error) {
-    console.error("Error en la solicitud:", error);
+    console.error("❌ Error en la solicitud:", error);
     return null;
   }
 };
