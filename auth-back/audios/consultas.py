@@ -1,26 +1,39 @@
-#auth-back/audios/consultas.py
-from conexion import obtener_conexion  # 📌 Importa la conexión desde conexion.py
+import json
+
+def enviar_json(json_data):
+    print("\nJSON enviado automáticamente:")
+    print(" Tipo de json_data:", type(json_data))  # Tipo de dato
+    print(json_data)  # JSON crudo
 
 def obtener_audios(id_usuario, conexion):
-
-    """
-    Obtiene los nombres de los archivos de audio de un usuario.
-
-    Parámetros:
-        id_usuario (int): ID del usuario en la base de datos.
-
-    Retorna:
-        list: Lista de tuplas con (id_audio, nombre_archivo).
-    """
-    conexion = obtener_conexion()  # 🔗 Llama a la función de conexion.py para obtener la conexión.
+    print(f"\nID de usuario recibido: {id_usuario}")  # Verificar que el ID llega
 
     try:
-        cur = conexion.cursor()  # Crea un cursor para ejecutar la consulta
-        cur.execute('SELECT id, audio FROM audios WHERE id_usuario = %s', (id_usuario,))  # Ejecuta la consulta SQL
-        audios = cur.fetchall()  # Obtiene los resultados de la consulta
-        return audios  # 📌 Esta lista será utilizada en index.py para procesar los audios.
+        cur = conexion.cursor()
+        cur.execute('SELECT id, audio FROM audios WHERE id_usuario = %s', (id_usuario,))
+        audios = cur.fetchall()
+
+        print(f"Datos obtenidos de la BD en auth-back/audios/consultas.py: {audios}")  # Verificar lo que devuelve la BD
+
+        respuesta = {
+            "id_usuario": id_usuario,
+            "audios": [{"id_audio": audio[0], "nombre_archivo": audio[1]} for audio in audios]
+        }
+
+        json_respuesta = json.dumps(respuesta, ensure_ascii=False)
+        
+        print("\n"
+        "JSON Generado:")
+        print(json_respuesta)  # Mostrar JSON antes de enviarlo
+
+        enviar_json(json_respuesta)
+        return json_respuesta
+
     except Exception as e:
-        print(f"❌ Error al obtener audios: {e}")  # Mensaje de error si la consulta falla
-        return []
+        error_respuesta = {
+            "error": f"Error al obtener audios del usuario {id_usuario}: {str(e)}"
+        }
+        return json.dumps(error_respuesta, ensure_ascii=False)
+
     finally:
-        conexion.close()  # 🔗 Cierra la conexión con MySQL cuando termina la consulta.
+        cur.close()
