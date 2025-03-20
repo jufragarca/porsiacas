@@ -16,3 +16,4 @@ def obtener_conexion():
         database='feedback'  # Nombre de la base de datos
     )
     return connection
+

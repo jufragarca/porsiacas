@@ -38,11 +38,18 @@ app.use('/api/CrearArea', require('./routes/CrearArea'));
 app.use('/api/ListarAreas', require('./routes/ListarAreas'));
 app.use('/api/ModificarAreas', require('./routes/ModificarAreas'));
 app.use('/api/LoginEmpleado', require('./routes/LoginEmpleado'));
+app.use('/api/RecibeAudios', require('./routes/RecibeAudios'));
+// 🔎 Borra caché antes de importar
+const intermedioAudios = require('./routes/intermedioAudios');
+
+console.log('Contenido de intermedioAudios:', intermedioAudios); // Verifica qué se importa
+
+app.use('/api/intermedioAudios', intermedioAudios);
 
 
-// Agrega la ruta para recibir audios
-// Agrega la ruta para recibir audios
-app.use('/api/RecibeAudios', require('./routes/RecibeAudios')); // Aquí se importa la ruta 'RecibeAudios.js'
+
+
+
 
 // Manejo de errores
 app.use((err, req, res, next) => {
